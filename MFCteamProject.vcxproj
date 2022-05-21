@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CTypeDB.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFCteamProject.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CTypeDB.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFCteamProject.cpp" />
     <ClCompile Include="MFCteamProjectDoc.cpp" />
