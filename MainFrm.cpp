@@ -8,6 +8,8 @@
 
 #include "MainFrm.h"
 
+#include "CTypeDB.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -63,6 +65,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 
+
+	CTypeDB db;
+	db.ReadCSVFILE(_T("files/typeDB.csv"));
+	db.PrintInfo(0);
+	db.PrintInfo(1);
+	db.PrintInfo(2);
+	db.PrintInfo(3);
 
 	return 0;
 }
