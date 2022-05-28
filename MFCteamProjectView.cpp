@@ -23,6 +23,8 @@
 IMPLEMENT_DYNCREATE(CMFCteamProjectView, CFormView)
 
 BEGIN_MESSAGE_MAP(CMFCteamProjectView, CFormView)
+	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CMFCteamProjectView::OnBnClickedButtonOpen)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_SHEET, &CMFCteamProjectView::OnDeltaposSpinSheet)
 END_MESSAGE_MAP()
 
 // CMFCteamProjectView 생성/소멸
@@ -82,3 +84,23 @@ CMFCteamProjectDoc* CMFCteamProjectView::GetDocument() const // 디버그되지 
 
 
 // CMFCteamProjectView 메시지 처리기
+
+
+void CMFCteamProjectView::OnBnClickedButton1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CMFCteamProjectView::OnBnClickedButtonOpen()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CMFCteamProjectView::OnDeltaposSpinSheet(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	*pResult = 0;
+}
