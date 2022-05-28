@@ -72,7 +72,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	db.PrintInfo(1);
 	db.PrintInfo(2);
 	db.PrintInfo(3);
-
+	db.PrintInfo(4);
 	return 0;
 }
 
