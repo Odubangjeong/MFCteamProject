@@ -43,6 +43,14 @@ protected:
 // 생성된 메시지 맵 함수
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButtonOpen();
+	afx_msg void OnDeltaposSpinSheet(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedButton2();
+	CSpinButtonCtrl m_spin;
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	CStatic m_pic;
 };
 
 #ifndef _DEBUG  // MFCteamProjectView.cpp의 디버그 버전
