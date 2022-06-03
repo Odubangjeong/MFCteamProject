@@ -18,6 +18,7 @@
 #define IDC_STATIC_SHEETS               1012
 #define IDC_PIC                         1013
 #define IDC_EDIT2                       1014
+#define ID_INDICATOR_POS                59142
 
 // Next default values for new objects
 // 

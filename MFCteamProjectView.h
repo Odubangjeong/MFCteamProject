@@ -4,6 +4,15 @@
 
 #pragma once
 
+#include "opencv2/opencv.hpp"
+
+#include "CTypeDB.h"
+
+struct RectInfo
+{
+	CRect rect;
+	int char_index;
+};
 
 class CMFCteamProjectView : public CFormView
 {
@@ -51,6 +60,26 @@ public:
 	CSpinButtonCtrl m_spin;
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	CStatic m_pic;
+	afx_msg void OnPaint();
+//	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+
+// CSV 파일 관련
+	CTypeDB db;
+
+
+// 이미지 상에 그려지는 사각형 좌표
+protected:
+	const int p_thickness = 1;
+	cv::Mat img;
+	int selected_img = 0;
+	CArray<RectInfo, RectInfo&> img_rects;
+	int img_selected_rect = -1;
+
+protected:
+	void LoadNewImage(int img_index);
+	void DrawImage();
+
 };
 
 #ifndef _DEBUG  // MFCteamProjectView.cpp의 디버그 버전
