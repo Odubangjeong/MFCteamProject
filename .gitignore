@@ -361,3 +361,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/bfg-1.14.0
+/opencv
+/월인천강지곡 권상
+/opencv_world455d.dll
+/opencv_videoio_msmf455_64d.dll
+/opencv_videoio_ffmpeg455_64.dll
+/opencv-4.5.5-vc14_vc15.exe
+/git reset HEAD~1
