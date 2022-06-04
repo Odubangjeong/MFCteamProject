@@ -111,7 +111,7 @@ protected:
 protected:
 	void LoadNewImage(int img_index);
 	void DrawImage(void);
-	void CMFCteamProjectView::DrawcharImage(int index);
+	void CMFCteamProjectView::DrawcharImage(CString f_path);
 
 public:
 //	afx_msg void OnStnClickedPic();

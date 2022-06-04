@@ -218,7 +218,7 @@ void CMFCteamProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 
 		// 글자 정보 표시
 		DisplayCharInfo(img_selected_rect);
-		DrawcharImage(img_selected_rect);
+	//	DrawcharImage(img_selected_rect);
 	}
 
 	/*
@@ -420,21 +420,38 @@ void CMFCteamProjectView::DrawImage() {
 	
 }
 
-void CMFCteamProjectView::DrawcharImage(int index) {
+void CMFCteamProjectView::DrawcharImage(CString f_path) {
 //	CString str;
 //	str.Format(_T("%d"), index);
 //	AfxMessageBox(str);
 
-	SCharInfo chinfo = db.getChars(index + count);
-	
+	//SCharInfo chinfo = db.getChars(index + count);
+	/*
 	TypeInfo info;
 	for (int i = 0; i < type_lists.GetSize(); i++) {
 		info = type_lists.GetAt(i);
 		if (info.f_type == chinfo.m_type && info.f_sheet == chinfo.m_sheet) break;
 	}
-	
-	std::string s((CT2CA)info.path);
-	AfxMessageBox(info.path);
+	*/
+	/*
+	CString filepath;
+	filepath += _T("월인천강지곡 권상\\03_type\\");
+	filepath += chinfo.m_char;
+	filepath += _T("\\");
+	CString sh;
+	sh.Format(_T("%d"), chinfo.m_sheet);
+	filepath += sh;
+
+	for (auto& entry : fs::directory_iterator(std::string(CT2CA(filepath)))) {
+		int n = 0;
+		if (entry.)
+		CString img_path;
+		img_path = entry.path().stem().string().c_str();
+	}
+	*/
+
+	std::string s((CT2CA)f_path);
+	AfxMessageBox(f_path);
 
 	cv::Mat img = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
 
@@ -530,6 +547,8 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	// filepath += type;
 
 	TypeInfo info;
+	bool _first = 0;
+	CString imgPath;
 
 	for (int i = 0; i < dir_list.GetSize(); i++) {
 		CString path = filepath;
@@ -542,7 +561,10 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 			info.f_type = _ttoi(type);
 			//AfxMessageBox(info.f_type);
 			info.path = entry.path().string().c_str();
-
+			if (_first == 0) {
+				imgPath = info.path;
+				_first = 1;
+			}
 			info.m_char_name = entry.path().stem().string().c_str();
 			AfxExtractSubString(sheet, info.m_char_name, n++, '_');
 			AfxExtractSubString(sx, info.m_char_name, n++, '_');
@@ -558,7 +580,7 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 
 	// 해당 글자 이미지 보여주기
 
-
+	DrawcharImage(imgPath);
 
 
 	// 활자 정보 출력
