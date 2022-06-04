@@ -87,6 +87,10 @@ public:
 // CSV 파일 관련
 	CTypeDB db;
 
+// 폴더 경로
+protected:
+	CString RootPath;
+
 // 03_type 폴더 내 파일 리스트
 protected:
 	CArray<CString, CString&> char_lists;
@@ -122,6 +126,7 @@ public:
 	CButton CharChar;
 	CStatic CharCode;
 	CStatic mTypes;
+	CEdit m_pname;
 };
 
 #ifndef _DEBUG  // MFCteamProjectView.cpp의 디버그 버전

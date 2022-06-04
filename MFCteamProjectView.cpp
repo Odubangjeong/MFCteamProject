@@ -70,6 +70,7 @@ void CMFCteamProjectView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_OPEN, CharChar);
 	DDX_Control(pDX, IDC_CHARNAME, CharCode);
 	DDX_Control(pDX, IDC_STATIC_TYPES, mTypes);
+	DDX_Control(pDX, IDC_EDIT_BOOKNAME, m_pname);
 }
 
 BOOL CMFCteamProjectView::PreCreateWindow(CREATESTRUCT& cs)
@@ -129,6 +130,18 @@ void CMFCteamProjectView::OnBnClickedButton1()
 
 void CMFCteamProjectView::OnBnClickedButtonOpen()
 {
+	CString strInitPath = _T("C:\\");
+
+	CFolderPickerDialog Picker(strInitPath, OFN_FILEMUSTEXIST, NULL, 0);
+	if (Picker.DoModal() == IDOK)
+	{
+		// 경로 가져오기
+		RootPath = Picker.GetPathName();
+	//	m_pname.SetWindowText(RootPath);
+		AfxMessageBox(RootPath);
+		CString strFolderPath = Picker.GetFileName();
+		m_pname.SetWindowText(strFolderPath);
+	}
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
@@ -248,14 +261,23 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 	// 이미지 불러오기, CSV 파일 읽기
 	if (img_index == 1)
 	{
+	//	CString t = RootPath;
+	//	t += _T("\\01_scan\\001.jpg");
+	//	std::string s((CT2CA)t);
 		img = cv::imread("월인천강지곡 권상\\01_scan\\001.jpg", cv::ImreadModes::IMREAD_UNCHANGED);
 	}
 	else if (img_index == 2)
 	{
+	//	CString t = RootPath;
+	//	t += _T("\\01_scan\\002.jpg");
+	//	std::string s((CT2CA)t);
 		img = cv::imread("월인천강지곡 권상\\01_scan\\002.jpg", cv::ImreadModes::IMREAD_UNCHANGED);
 	}
 	else if (img_index == 3)
 	{
+	//	CString t = RootPath;
+	//	t += _T("\\01_scan\\001.jpg");
+	//	std::string s((CT2CA)t);
 		img = cv::imread("월인천강지곡 권상\\01_scan\\003.jpg", cv::ImreadModes::IMREAD_UNCHANGED);
 	}
 	int img_width = img.size().width;
@@ -308,6 +330,7 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 			cv::rectangle(img, p_rect, cv::Scalar(0, 0, 255), p_thickness, 4, 0);
 			img_selected_rect = 0;
 			isFirst = 1;
+			DisplayCharInfo(img_selected_rect);
 		}
 		else {
 			cv::rectangle(img, p_rect, cv::Scalar(0, 255, 0), p_thickness, 4, 0);
