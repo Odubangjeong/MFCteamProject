@@ -90,6 +90,7 @@ public:
 // 폴더 경로
 protected:
 	CString RootPath;
+	bool opend = 0;
 
 // 03_type 폴더 내 파일 리스트
 protected:
@@ -108,6 +109,10 @@ protected:
 	int selected_img = 0;
 	CArray<RectInfo, RectInfo&> img_rects;
 	int img_selected_rect = -1;
+
+	cv::Mat cimg;
+
+	CString char_path;
 
 // 카운팅
 protected:

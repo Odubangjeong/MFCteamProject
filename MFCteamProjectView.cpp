@@ -92,9 +92,8 @@ void CMFCteamProjectView::OnInitialUpdate()
 //	CString str;
 //	str.Format(L"월인천강지곡 권상\\typeDB.csv");
 //	db.ReadCSVFILE(str);
-	db.ReadCSVFILE(_T("월인천강지곡 권상\\typeDB.csv"));
 
-	LoadNewImage(1);
+	
 }
 
 
@@ -131,7 +130,7 @@ void CMFCteamProjectView::OnBnClickedButton1()
 void CMFCteamProjectView::OnBnClickedButtonOpen()
 {
 	CString strInitPath = _T("C:\\");
-
+	CString strFolderPath;
 	CFolderPickerDialog Picker(strInitPath, OFN_FILEMUSTEXIST, NULL, 0);
 	if (Picker.DoModal() == IDOK)
 	{
@@ -139,9 +138,24 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 		RootPath = Picker.GetPathName();
 	//	m_pname.SetWindowText(RootPath);
 		AfxMessageBox(RootPath);
-		CString strFolderPath = Picker.GetFileName();
+		strFolderPath = Picker.GetFileName();
 		m_pname.SetWindowText(strFolderPath);
 	}
+
+	if (strFolderPath == _T("월인천강지곡 권상")) {
+		opend = 1;
+		CString path = RootPath;
+		path += _T("\\typeDB.csv");
+		db.ReadCSVFILE(path);
+		Invalidate();
+		LoadNewImage(1);
+		
+	}
+//	CString path = RootPath;
+//	path += _T("\\typeDB.csv");
+//	db.ReadCSVFILE(path);
+//	LoadNewImage(1);
+
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
@@ -164,7 +178,10 @@ void CMFCteamProjectView::OnPaint()
 				  // TODO: 여기에 메시지 처리기 코드를 추가합니다.
 				  // 그리기 메시지에 대해서는 CFormView::OnPaint()을(를) 호출하지 마십시오.
 
+	
 	DrawImage();
+	DrawcharImage(char_path);
+	
 }
 
 
@@ -261,24 +278,24 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 	// 이미지 불러오기, CSV 파일 읽기
 	if (img_index == 1)
 	{
-	//	CString t = RootPath;
-	//	t += _T("\\01_scan\\001.jpg");
-	//	std::string s((CT2CA)t);
-		img = cv::imread("월인천강지곡 권상\\01_scan\\001.jpg", cv::ImreadModes::IMREAD_UNCHANGED);
+		CString t = RootPath;
+		t += _T("\\01_scan\\001.jpg");
+		std::string s((CT2CA)t);
+		img = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
 	}
 	else if (img_index == 2)
 	{
-	//	CString t = RootPath;
-	//	t += _T("\\01_scan\\002.jpg");
-	//	std::string s((CT2CA)t);
-		img = cv::imread("월인천강지곡 권상\\01_scan\\002.jpg", cv::ImreadModes::IMREAD_UNCHANGED);
+		CString t = RootPath;
+		t += _T("\\01_scan\\002.jpg");
+		std::string s((CT2CA)t);
+		img = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
 	}
 	else if (img_index == 3)
 	{
-	//	CString t = RootPath;
-	//	t += _T("\\01_scan\\001.jpg");
-	//	std::string s((CT2CA)t);
-		img = cv::imread("월인천강지곡 권상\\01_scan\\003.jpg", cv::ImreadModes::IMREAD_UNCHANGED);
+		CString t = RootPath;
+		t += _T("\\01_scan\\003.jpg");
+		std::string s((CT2CA)t);
+		img = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
 	}
 	int img_width = img.size().width;
 	int img_height = img.size().height;
@@ -339,57 +356,13 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 
 		// 그린 사각형 몇번째인지 저장
 		img_rects.Add(p_info);
-		/*
-		{
-			// 이미지 위에 네모 그리기
-			int m_ind = 0;
-			int m_sx = 8498;
-			int m_sy = 1264;
-			int m_width = 312;
-			int m_height = 352; // 1번 글자 위치
-
-			int p_x1 = m_sx * rect_width / img_width - p_thickness;
-			int p_y1 = m_sy * rect_height / img_height - p_thickness;
-			int p_x2 = (m_sx + m_width) * rect_width / img_width + p_thickness;
-			int p_y2 = (m_sy + m_height) * rect_height / img_height + p_thickness; // 좌표계 조정
-
-			cv::Rect p_rect(cv::Point(p_x1, p_y1), cv::Point(p_x2, p_y2));
-			RectInfo p_info;
-			p_info.char_index = m_ind;
-			p_info.rect = CRect(p_x1, p_y1, p_x2, p_y2);
-
-			cv::rectangle(img, p_rect, cv::Scalar(0, 255, 0), p_thickness, 4, 0);
-			img_rects.Add(p_info);
-		}
-
-		{
-			// 이미지 위에 네모 그리기
-			int m_ind = 0;
-			int m_sx = 8491;
-			int m_sy = 1953;
-			int m_width = 313;
-			int m_height = 345; // 2번 글자 위치
-
-			int p_x1 = m_sx * rect_width / img_width - p_thickness;
-			int p_y1 = m_sy * rect_height / img_height - p_thickness;
-			int p_x2 = (m_sx + m_width) * rect_width / img_width + p_thickness;
-			int p_y2 = (m_sy + m_height) * rect_height / img_height + p_thickness; // 좌표계 조정
-
-			cv::Rect p_rect(cv::Point(p_x1, p_y1), cv::Point(p_x2, p_y2));
-			RectInfo p_info;
-			p_info.char_index = m_ind;
-			p_info.rect = CRect(p_x1, p_y1, p_x2, p_y2);
-
-			cv::rectangle(img, p_rect, cv::Scalar(0, 255, 0), p_thickness, 4, 0);
-			img_rects.Add(p_info);
-		}
-		*/
 	}
-
-
 }
 
 void CMFCteamProjectView::DrawImage() {
+	if (opend == 0) return;
+
+
 	CRect rect;
 	m_pic.GetClientRect(&rect);
 
@@ -444,39 +417,9 @@ void CMFCteamProjectView::DrawImage() {
 }
 
 void CMFCteamProjectView::DrawcharImage(CString f_path) {
-//	CString str;
-//	str.Format(_T("%d"), index);
-//	AfxMessageBox(str);
-
-	//SCharInfo chinfo = db.getChars(index + count);
-	/*
-	TypeInfo info;
-	for (int i = 0; i < type_lists.GetSize(); i++) {
-		info = type_lists.GetAt(i);
-		if (info.f_type == chinfo.m_type && info.f_sheet == chinfo.m_sheet) break;
-	}
-	*/
-	/*
-	CString filepath;
-	filepath += _T("월인천강지곡 권상\\03_type\\");
-	filepath += chinfo.m_char;
-	filepath += _T("\\");
-	CString sh;
-	sh.Format(_T("%d"), chinfo.m_sheet);
-	filepath += sh;
-
-	for (auto& entry : fs::directory_iterator(std::string(CT2CA(filepath)))) {
-		int n = 0;
-		if (entry.)
-		CString img_path;
-		img_path = entry.path().stem().string().c_str();
-	}
-	*/
-
+	if (opend == 0) return;
 	std::string s((CT2CA)f_path);
-	AfxMessageBox(f_path);
-
-	cv::Mat img = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
+	cimg = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
 
 
 	CDC* pDC;
@@ -485,15 +428,15 @@ void CMFCteamProjectView::DrawcharImage(CString f_path) {
 
 	CRect rect;
 	m_char_pic.GetClientRect(&rect);
-	cv::resize(img, img, cv::Size(rect.Width() / 8 * 8, rect.Height() / 8 * 8));
+	cv::resize(cimg, cimg, cv::Size(rect.Width() / 8 * 8, rect.Height() / 8 * 8));
 
 
 	// 이미지를 사각형으로 출력
 	BITMAPINFO bitmapInfo;
 	bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
 	bitmapInfo.bmiHeader.biBitCount = 24;
-	bitmapInfo.bmiHeader.biWidth = img.cols;
-	bitmapInfo.bmiHeader.biHeight = -img.rows;
+	bitmapInfo.bmiHeader.biWidth = cimg.cols;
+	bitmapInfo.bmiHeader.biHeight = -cimg.rows;
 	bitmapInfo.bmiHeader.biPlanes = 1;
 	bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bitmapInfo.bmiHeader.biCompression = BI_RGB;
@@ -502,26 +445,26 @@ void CMFCteamProjectView::DrawcharImage(CString f_path) {
 	bitmapInfo.bmiHeader.biSizeImage = 0;
 	bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
 
-	if (img.channels() == 3)
+	if (cimg.channels() == 3)
 	{
 		mfcImg = new CImage();
-		mfcImg->Create(img.cols, img.rows, 24);
+		mfcImg->Create(cimg.cols, cimg.rows, 24);
 	}
-	else if (img.channels() == 1)
+	else if (cimg.channels() == 1)
 	{
-		cv::cvtColor(img, img, cv::COLOR_GRAY2RGB);
+		cv::cvtColor(cimg, cimg, cv::COLOR_GRAY2RGB);
 		mfcImg = new CImage();
-		mfcImg->Create(img.cols, img.rows, 24);
+		mfcImg->Create(cimg.cols, cimg.rows, 24);
 	}
-	else if (img.channels() == 4)
+	else if (cimg.channels() == 4)
 	{
 		bitmapInfo.bmiHeader.biBitCount = 32;
 		mfcImg = new CImage();
-		mfcImg->Create(img.cols, img.rows, 32);
+		mfcImg->Create(cimg.cols, cimg.rows, 32);
 	}
 
-	::StretchDIBits(mfcImg->GetDC(), 0, 0, img.cols, img.rows,
-		0, 0, img.cols, img.rows, img.data, &bitmapInfo,
+	::StretchDIBits(mfcImg->GetDC(), 0, 0, cimg.cols, cimg.rows,
+		0, 0, cimg.cols, cimg.rows, cimg.data, &bitmapInfo,
 		DIB_RGB_COLORS, SRCCOPY);
 
 	mfcImg->BitBlt(::GetDC(m_char_pic.m_hWnd), 0, 0);
@@ -536,8 +479,6 @@ void CMFCteamProjectView::DrawcharImage(CString f_path) {
 void CMFCteamProjectView::DisplayCharInfo(int index) {
 	// img_selected_rect 번째 출력
 	// db.ReadCSVFILE(_T("월인천강지곡 권상\\typeDB.csv"));
-	CString filepath;
-	filepath.Empty();
 	CString filename;
 	filename.Empty();
 
@@ -553,7 +494,7 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	type.Format(_T("%d"), chinfo.m_type);
 	// 파일 위치 열기
 	// 첫번째 인자는 후에 책 이름 CString으로 변경할것
-	filepath += _T("월인천강지곡 권상");
+	CString filepath = RootPath;
 	filepath += _T("\\03_type\\");
 	filepath += chinfo.m_char;
 
@@ -602,8 +543,8 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	}
 
 	// 해당 글자 이미지 보여주기
-
-	DrawcharImage(imgPath);
+	char_path = imgPath;
+	DrawcharImage(char_path);
 
 
 	// 활자 정보 출력
