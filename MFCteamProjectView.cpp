@@ -19,6 +19,11 @@
 
 #include "CTypeDB.h"
 
+#include <iostream>
+#include <filesystem>
+#include <typeinfo>
+namespace fs = std::filesystem;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -36,6 +41,7 @@ BEGIN_MESSAGE_MAP(CMFCteamProjectView, CFormView)
 	ON_WM_PAINT()
 //	ON_WM_MOUSEMOVE()
 ON_WM_LBUTTONDOWN()
+//ON_STN_CLICKED(IDC_PIC, &CMFCteamProjectView::OnStnClickedPic)
 END_MESSAGE_MAP()
 
 // CMFCteamProjectView 생성/소멸
@@ -57,6 +63,13 @@ void CMFCteamProjectView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SPIN_SHEET, m_spin);
 	//DDX_Control(pDX, IDC_PIC, m_pic);
 	DDX_Control(pDX, IDC_PIC, m_pic);
+	DDX_Control(pDX, IDC_CHARSHEET, CharSheet);
+	DDX_Control(pDX, IDC_CHARLINE, CharLine);
+	DDX_Control(pDX, IDC_CHARORDER, CharOrder);
+	DDX_Control(pDX, IDC_CHAR, m_char_pic);
+	DDX_Control(pDX, IDC_BUTTON_OPEN, CharChar);
+	DDX_Control(pDX, IDC_CHARNAME, CharCode);
+	DDX_Control(pDX, IDC_STATIC_TYPES, mTypes);
 }
 
 BOOL CMFCteamProjectView::PreCreateWindow(CREATESTRUCT& cs)
@@ -75,7 +88,9 @@ void CMFCteamProjectView::OnInitialUpdate()
 
 	m_spin.SetRange(1, 3);
 	m_spin.SetPos(1);
-	
+//	CString str;
+//	str.Format(L"월인천강지곡 권상\\typeDB.csv");
+//	db.ReadCSVFILE(str);
 	db.ReadCSVFILE(_T("월인천강지곡 권상\\typeDB.csv"));
 
 	LoadNewImage(1);
@@ -200,6 +215,10 @@ void CMFCteamProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 
 		img_selected_rect = selected;
 		DrawImage();
+
+		// 글자 정보 표시
+		DisplayCharInfo(img_selected_rect);
+		DrawcharImage(img_selected_rect);
 	}
 
 	/*
@@ -207,6 +226,8 @@ void CMFCteamProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 	str.Format(L"%d    %d", point.x, point.y);
 	AfxMessageBox(str);
 	*/
+//	DisplayCharInfo(img_selected_rect);
+//	DrawcharImage(img_selected_rect);
 	CFormView::OnLButtonDown(nFlags, point);
 }
 
@@ -246,10 +267,10 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 
 	// 이미지 크기 조절
 	cv::resize(img, img, cv::Size(rect_width, rect_height));
-	
-	
+	bool end_count = 0;
+	count = 0;
 
-	int count = -1;
+	int isFirst = -1;
 
 	for (int i = 0; i < db.getLength(); i++) {
 		// 글자 페이지 비교하기
@@ -260,8 +281,11 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 		// TODO : CArray를 가져오시오...
 		
 		SCharInfo chInfo = db.getChars(i);
-		if (chInfo.m_sheet != img_index) continue;
-		
+		if (chInfo.m_sheet != img_index) {
+			if (end_count != 1) count++;
+			continue;
+		}
+		end_count = 1;
 		int m_ind = i;
 
 		int m_sx = chInfo.m_sx;
@@ -280,10 +304,10 @@ void CMFCteamProjectView::LoadNewImage(int img_index) {
 		p_info.rect = CRect(p_x1, p_y1, p_x2, p_y2);
 
 
-		if (count == -1) {
+		if (isFirst == -1) {
 			cv::rectangle(img, p_rect, cv::Scalar(0, 0, 255), p_thickness, 4, 0);
 			img_selected_rect = 0;
-			count = 1;
+			isFirst = 1;
 		}
 		else {
 			cv::rectangle(img, p_rect, cv::Scalar(0, 255, 0), p_thickness, 4, 0);
@@ -392,4 +416,182 @@ void CMFCteamProjectView::DrawImage() {
 	delete mfcImg;
 	mfcImg = nullptr;
 	ReleaseDC(pDC);
+
+	
 }
+
+void CMFCteamProjectView::DrawcharImage(int index) {
+//	CString str;
+//	str.Format(_T("%d"), index);
+//	AfxMessageBox(str);
+
+	SCharInfo chinfo = db.getChars(index + count);
+	
+	TypeInfo info;
+	for (int i = 0; i < type_lists.GetSize(); i++) {
+		info = type_lists.GetAt(i);
+		if (info.f_type == chinfo.m_type && info.f_sheet == chinfo.m_sheet) break;
+	}
+	
+	std::string s((CT2CA)info.path);
+	AfxMessageBox(info.path);
+
+	cv::Mat img = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
+
+
+	CDC* pDC;
+	CImage* mfcImg = nullptr;
+	pDC = m_char_pic.GetDC();
+
+	CRect rect;
+	m_char_pic.GetClientRect(&rect);
+	cv::resize(img, img, cv::Size(rect.Width() / 8 * 8, rect.Height() / 8 * 8));
+
+
+	// 이미지를 사각형으로 출력
+	BITMAPINFO bitmapInfo;
+	bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
+	bitmapInfo.bmiHeader.biBitCount = 24;
+	bitmapInfo.bmiHeader.biWidth = img.cols;
+	bitmapInfo.bmiHeader.biHeight = -img.rows;
+	bitmapInfo.bmiHeader.biPlanes = 1;
+	bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bitmapInfo.bmiHeader.biCompression = BI_RGB;
+	bitmapInfo.bmiHeader.biClrImportant = 0;
+	bitmapInfo.bmiHeader.biClrUsed = 0;
+	bitmapInfo.bmiHeader.biSizeImage = 0;
+	bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
+
+	if (img.channels() == 3)
+	{
+		mfcImg = new CImage();
+		mfcImg->Create(img.cols, img.rows, 24);
+	}
+	else if (img.channels() == 1)
+	{
+		cv::cvtColor(img, img, cv::COLOR_GRAY2RGB);
+		mfcImg = new CImage();
+		mfcImg->Create(img.cols, img.rows, 24);
+	}
+	else if (img.channels() == 4)
+	{
+		bitmapInfo.bmiHeader.biBitCount = 32;
+		mfcImg = new CImage();
+		mfcImg->Create(img.cols, img.rows, 32);
+	}
+
+	::StretchDIBits(mfcImg->GetDC(), 0, 0, img.cols, img.rows,
+		0, 0, img.cols, img.rows, img.data, &bitmapInfo,
+		DIB_RGB_COLORS, SRCCOPY);
+
+	mfcImg->BitBlt(::GetDC(m_char_pic.m_hWnd), 0, 0);
+
+	mfcImg->ReleaseDC();
+	delete mfcImg;
+	mfcImg = nullptr;
+	ReleaseDC(pDC);
+
+}
+
+void CMFCteamProjectView::DisplayCharInfo(int index) {
+	// img_selected_rect 번째 출력
+	// db.ReadCSVFILE(_T("월인천강지곡 권상\\typeDB.csv"));
+	CString filepath;
+	filepath.Empty();
+	CString filename;
+	filename.Empty();
+
+	CString sheet;
+	CString line;
+	CString order;
+	CString type;
+
+	CString filelist;
+
+	SCharInfo chinfo = db.getChars(index + count);
+
+	type.Format(_T("%d"), chinfo.m_type);
+	// 파일 위치 열기
+	// 첫번째 인자는 후에 책 이름 CString으로 변경할것
+	filepath += _T("월인천강지곡 권상");
+	filepath += _T("\\03_type\\");
+	filepath += chinfo.m_char;
+
+	// 폴더 목록(활자 모양 번호) 리스트 작성
+	for (auto& entry : fs::directory_iterator(std::string(CT2CA(filepath)))) {
+		CString dir;
+		dir = entry.path().stem().string().c_str();
+		dir_list.Add(dir);
+	}
+
+
+	// 각 폴더에서 파일 가져오기
+	// filepath += _T("\\");
+	// filepath += type;
+
+	TypeInfo info;
+
+	for (int i = 0; i < dir_list.GetSize(); i++) {
+		CString path = filepath;
+		path += _T("\\");
+		path += type;
+		for (auto& entry : fs::directory_iterator(std::string(CT2CA(path)))) {
+			int n = 0;
+			CString sheet, sx, sy;
+
+			info.f_type = _ttoi(type);
+			//AfxMessageBox(info.f_type);
+			info.path = entry.path().string().c_str();
+
+			info.m_char_name = entry.path().stem().string().c_str();
+			AfxExtractSubString(sheet, info.m_char_name, n++, '_');
+			AfxExtractSubString(sx, info.m_char_name, n++, '_');
+			AfxExtractSubString(sy, info.m_char_name, n++, '_');
+
+			info.f_sheet = _ttoi(sheet);
+			info.f_sx = _ttoi(sx);
+			info.f_sy = _ttoi(sy);
+			type_lists.Add(info);
+		}
+
+	}
+
+	// 해당 글자 이미지 보여주기
+
+
+
+
+	// 활자 정보 출력
+	//char_lists.GetCount();
+
+
+
+	//CString types;
+//	mTypes.SetWindowTextW();
+
+
+
+
+
+
+
+
+	// 글자 정보 출력
+	// 출력할 장, 행, 번 string으로 변경
+	sheet.Format(_T("%d"), chinfo.m_sheet);
+	line.Format(_T("%d"), chinfo.m_line);
+	order.Format(_T("%d"), chinfo.m_order);
+	// 출력
+	CharCode.SetWindowTextW((LPCTSTR)chinfo.m_char);
+	CharSheet.SetWindowTextW(sheet);
+	CharLine.SetWindowTextW(line);
+	CharOrder.SetWindowTextW(order);
+
+
+
+}
+
+//void CMFCteamProjectView::OnStnClickedPic()
+//{
+//	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+//}
