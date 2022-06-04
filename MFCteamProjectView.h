@@ -132,6 +132,7 @@ public:
 	CStatic CharCode;
 	CStatic mTypes;
 	CEdit m_pname;
+	afx_msg void OnStnClickedCharsheet();
 };
 
 #ifndef _DEBUG  // MFCteamProjectView.cpp의 디버그 버전

@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CMFCteamProjectView, CFormView)
 //	ON_WM_MOUSEMOVE()
 ON_WM_LBUTTONDOWN()
 //ON_STN_CLICKED(IDC_PIC, &CMFCteamProjectView::OnStnClickedPic)
+ON_STN_CLICKED(IDC_CHARSHEET, &CMFCteamProjectView::OnStnClickedCharsheet)
 END_MESSAGE_MAP()
 
 // CMFCteamProjectView 생성/소멸
@@ -581,3 +582,9 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 //{
 //	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 //}
+
+
+void CMFCteamProjectView::OnStnClickedCharsheet()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
