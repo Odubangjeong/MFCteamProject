@@ -179,7 +179,7 @@ public:
 	CStatic CharCode;
 	CStatic mTypes;
 	CEdit m_pname;
-	afx_msg void OnStnClickedCharsheet();
+//	afx_msg void OnStnClickedCharsheet();
 	CStatic m_allnum;
 	CStatic m_alltypenum;
 	CStatic m_allhwallnum;
@@ -193,7 +193,7 @@ public:
 	afx_msg void OnNMClickListChars(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMCustomdrawListChars(NMHDR* pNMHDR, LRESULT* pResult);
 	CStatic m_type_pic;
-	afx_msg void OnStnClickedStaticTypes();
+//	afx_msg void OnStnClickedStaticTypes();
 	afx_msg void OnStnClickedallnum();
 };
 

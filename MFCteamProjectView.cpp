@@ -49,13 +49,13 @@ BEGIN_MESSAGE_MAP(CMFCteamProjectView, CFormView)
 //	ON_WM_MOUSEMOVE()
 ON_WM_LBUTTONDOWN()
 //ON_STN_CLICKED(IDC_PIC, &CMFCteamProjectView::OnStnClickedPic)
-ON_STN_CLICKED(IDC_CHARSHEET, &CMFCteamProjectView::OnStnClickedCharsheet)
+//ON_STN_CLICKED(IDC_CHARSHEET, &CMFCteamProjectView::OnStnClickedCharsheet)
 ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TYPE, &CMFCteamProjectView::OnDeltaposSpinType)
 ON_NOTIFY(NM_CLICK, IDC_LIST_CHARS, &CMFCteamProjectView::OnNMClickListChars)
 
 
 ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_CHARS, &CMFCteamProjectView::OnNMCustomdrawListChars)
-ON_STN_CLICKED(IDC_STATIC_TYPES, &CMFCteamProjectView::OnStnClickedStaticTypes)
+//ON_STN_CLICKED(IDC_STATIC_TYPES, &CMFCteamProjectView::OnStnClickedStaticTypes)
 ON_STN_CLICKED(IDC_allnum, &CMFCteamProjectView::OnStnClickedallnum)
 END_MESSAGE_MAP()
 
@@ -114,9 +114,6 @@ void CMFCteamProjectView::OnInitialUpdate()
 
 	m_spin.SetRange(1, 3);
 	m_spin.SetPos(1);
-//	CString str;
-//	str.Format(L"월인천강지곡 권상\\typeDB.csv");
-//	db.ReadCSVFILE(str);
 
 	
 	//vtk 코드
@@ -204,8 +201,7 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 		LoadNewImage(1);
 	}
 		// 호출
-	//	char* setlocae(int category, const char* locale);
-	//	setlocale(LC_ALL, "");
+
 	
 	db.numcount();
 	m_allnum.SetWindowText(db.num);
@@ -216,15 +212,7 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 	m_ptype.SetWindowText(db.type1);
 	m_phwall.SetWindowText(db.hwall1);
 	
-	//CString str;
-	//str.Format(_T("%d"), info.m_type);
-	//CString ppath = _T("04_3d\\") + info.m_char + _T("_") + str;   //이름.확장자
-	
 
-//	CString path = RootPath;
-//	path += _T("\\typeDB.csv");
-//	db.ReadCSVFILE(path);
-//	LoadNewImage(1);
 
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	
@@ -290,15 +278,6 @@ void CMFCteamProjectView::OnPaint()
 }
 
 
-//void CMFCteamProjectView::OnMouseMove(UINT nFlags, CPoint point)
-//{
-//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-//	CString str;
-//	str.Format(_T("(%4d,%4d)"), point.x, point.y);
-//	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-//	pMainFrame->m_wndStatusBar.SetPaneText(1, str);
-//	CFormView::OnMouseMove(nFlags, point);
-//}
 
 
 void CMFCteamProjectView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -689,8 +668,7 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	}
 
 	// 각 폴더에서 파일 가져오기
-	// filepath += _T("\\");
-	// filepath += type;
+
 
 	TypeInfo info;
 	bool _first = 0;
@@ -709,12 +687,8 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 			info.f_type = _ttoi(dir_list.GetAt(i));
 			//AfxMessageBox(info.f_type);
 			info.path = entry.path().string().c_str();
-			// 
-	//		if (_first == 0) {
-	//			imgPath = info.path;
-	//			_first = 1;
-				//AfxMessageBox(imgPath);
-	//		}
+
+
 			CString sub;
 			sub = entry.path().stem().string().c_str();
 			AfxExtractSubString(sheet, sub, n++, '_');
@@ -774,17 +748,6 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	CString ch;
 	ch.Format(_T("%d"), typess);
 	m_edType.SetWindowTextW(ch);
-	//m_edType.SetWindowTextW()
-//	m_edType.SetWindowTextW(_T("1"));
-	//CString types;
-//	mTypes.SetWindowTextW();
-
-
-
-
-
-
-
 
 	// 글자 정보 출력
 	// 출력할 장, 행, 번 string으로 변경
@@ -881,16 +844,7 @@ void CMFCteamProjectView::drawVTKnSChar(int number) {
 	flag_type = 1;
 }
 
-//void CMFCteamProjectView::OnStnClickedPic()
-//{
-//	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-//}
 
-
-void CMFCteamProjectView::OnStnClickedCharsheet()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-}
 
 // vtk 코드
 void CMFCteamProjectView::InitVtkWindow(void* hWnd)
@@ -1029,11 +983,6 @@ void CMFCteamProjectView::OnNMCustomdrawListChars(NMHDR* pNMHDR, LRESULT* pResul
 	*pResult = 0;
 }
 
-
-void CMFCteamProjectView::OnStnClickedStaticTypes()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-}
 
 
 void CMFCteamProjectView::OnStnClickedallnum()
