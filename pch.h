@@ -10,4 +10,19 @@
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "framework.h"
 
+#include <vtkAutoInit.h>
+#define vtkRenderingCore_AUTOINIT \
+4(vtkRenderingOpenGL2,vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingContextOpenGL2)
+#define vrkRenderingVolume_AUTOINIT 1(vtkRenderingVolumeOpenGL2)
+
+#include <vtkRenderWindow.h>
+#include <vtkSmartPointer.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkConeSource.h>
+
 #endif //PCH_H

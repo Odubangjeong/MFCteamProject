@@ -28,7 +28,14 @@ namespace fs = std::filesystem;
 #define new DEBUG_NEW
 #endif
 
+//vtk코드
+#include <vtkSTLReader.h>
+#include <vtkLight.h>
 
+
+
+#include <locale.h>
+#include <iostream>
 // CMFCteamProjectView
 
 IMPLEMENT_DYNCREATE(CMFCteamProjectView, CFormView)
@@ -43,6 +50,13 @@ BEGIN_MESSAGE_MAP(CMFCteamProjectView, CFormView)
 ON_WM_LBUTTONDOWN()
 //ON_STN_CLICKED(IDC_PIC, &CMFCteamProjectView::OnStnClickedPic)
 ON_STN_CLICKED(IDC_CHARSHEET, &CMFCteamProjectView::OnStnClickedCharsheet)
+ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TYPE, &CMFCteamProjectView::OnDeltaposSpinType)
+ON_NOTIFY(NM_CLICK, IDC_LIST_CHARS, &CMFCteamProjectView::OnNMClickListChars)
+
+
+ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_CHARS, &CMFCteamProjectView::OnNMCustomdrawListChars)
+ON_STN_CLICKED(IDC_STATIC_TYPES, &CMFCteamProjectView::OnStnClickedStaticTypes)
+ON_STN_CLICKED(IDC_allnum, &CMFCteamProjectView::OnStnClickedallnum)
 END_MESSAGE_MAP()
 
 // CMFCteamProjectView 생성/소멸
@@ -72,13 +86,23 @@ void CMFCteamProjectView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHARNAME, CharCode);
 	DDX_Control(pDX, IDC_STATIC_TYPES, mTypes);
 	DDX_Control(pDX, IDC_EDIT_BOOKNAME, m_pname);
+	DDX_Control(pDX, IDC_allnum, m_allnum);
+	DDX_Control(pDX, IDC_alltypenum, m_alltypenum);
+	DDX_Control(pDX, IDC_allhwallnum, m_allhwallnum);
+	DDX_Control(pDX, IDC_pnum, m_pnum);
+	DDX_Control(pDX, IDC_ptype, m_ptype);
+	DDX_Control(pDX, IDC_phwall, m_phwall);
+	DDX_Control(pDX, IDC_EDIT_TYPE, m_edType);
+	DDX_Control(pDX, IDC_SPIN_TYPE, m_spType);
+	DDX_Control(pDX, IDC_LIST_CHARS, mListChars);
+	DDX_Control(pDX, IDC_TYPE_PIC, m_type_pic);
 }
 
 BOOL CMFCteamProjectView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: CREATESTRUCT cs를 수정하여 여기에서
 	//  Window 클래스 또는 스타일을 수정합니다.
-
+	
 	return CFormView::PreCreateWindow(cs);
 }
 
@@ -95,6 +119,33 @@ void CMFCteamProjectView::OnInitialUpdate()
 //	db.ReadCSVFILE(str);
 
 	
+	//vtk 코드
+	if (this->GetDlgItem(IDC_STATIC_FRAME))
+	{
+		this->InitVtkWindow(this->GetDlgItem(IDC_STATIC_FRAME)->GetSafeHwnd());
+		this->ResizeVtkWindow();
+	}
+
+
+	// 활자 정보 스핀 컨트롤 초기화
+	CString s_ed;
+	s_ed.Format(_T("%d"), currentType);
+	m_edType.SetWindowTextW(s_ed);
+	// 스핀 컨트롤 범위 설정
+	m_spType.SetRange(minnumberType, numberType);
+	// 초기값 1으로 설정
+	m_spType.SetPos(1);
+//	mTypes.SetWindowTextW(_T("/ 1개"));
+	
+	// 리스트 컨트롤 초기화
+	CRect ret;
+	mListChars.GetWindowRect(&ret);
+	mListChars.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
+
+	mListChars.InsertColumn(0, _T("장"), LVCFMT_CENTER, ret.Width() * 0.2);
+	mListChars.InsertColumn(1, _T("x"), LVCFMT_CENTER, ret.Width() * 0.35);
+	mListChars.InsertColumn(2, _T("y"), LVCFMT_CENTER, ret.Width() * 0.35);
+	//flag_type = -1;
 }
 
 
@@ -130,6 +181,7 @@ void CMFCteamProjectView::OnBnClickedButton1()
 
 void CMFCteamProjectView::OnBnClickedButtonOpen()
 {
+	CWaitCursor wait;
 	CString strInitPath = _T("C:\\");
 	CString strFolderPath;
 	CFolderPickerDialog Picker(strInitPath, OFN_FILEMUSTEXIST, NULL, 0);
@@ -138,7 +190,7 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 		// 경로 가져오기
 		RootPath = Picker.GetPathName();
 	//	m_pname.SetWindowText(RootPath);
-		AfxMessageBox(RootPath);
+	//	AfxMessageBox(RootPath);
 		strFolderPath = Picker.GetFileName();
 		m_pname.SetWindowText(strFolderPath);
 	}
@@ -150,25 +202,71 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 		db.ReadCSVFILE(path);
 		Invalidate();
 		LoadNewImage(1);
-		
 	}
+		// 호출
+	//	char* setlocae(int category, const char* locale);
+	//	setlocale(LC_ALL, "");
+	
+	db.numcount();
+	m_allnum.SetWindowText(db.num);
+	m_alltypenum.SetWindowText(db.type);
+	m_allhwallnum.SetWindowText(db.hwall);
+
+	m_pnum.SetWindowText(db.num1);
+	m_ptype.SetWindowText(db.type1);
+	m_phwall.SetWindowText(db.hwall1);
+	
+	//CString str;
+	//str.Format(_T("%d"), info.m_type);
+	//CString ppath = _T("04_3d\\") + info.m_char + _T("_") + str;   //이름.확장자
+	
+
 //	CString path = RootPath;
 //	path += _T("\\typeDB.csv");
 //	db.ReadCSVFILE(path);
 //	LoadNewImage(1);
 
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+	wait.Restore();
 }
 
 
 void CMFCteamProjectView::OnDeltaposSpinSheet(NMHDR* pNMHDR, LRESULT* pResult)
 {
+	CWaitCursor wait;
+	// if (opend == 0) return;
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 	cv::Mat img;
+
 	int iVal = pNMUpDown->iPos + pNMUpDown->iDelta;
 	
-	LoadNewImage(iVal);
-	DrawImage();
+	if (iVal >= 0 && iVal <= 3) {
+		LoadNewImage(iVal);
+		DrawImage();
+		db.numcount();
+		if (iVal == 1)
+		{
+			m_pnum.SetWindowText(db.num1);
+			m_ptype.SetWindowText(db.type1);
+			m_phwall.SetWindowText(db.hwall1);
+		}
+		else if (iVal == 2)
+		{
+			m_pnum.SetWindowText(db.num2);
+			m_ptype.SetWindowText(db.type2);
+			m_phwall.SetWindowText(db.hwall2);
+		}
+		else if (iVal == 3)
+		{
+			m_pnum.SetWindowText(db.num3);
+			m_ptype.SetWindowText(db.type3);
+			m_phwall.SetWindowText(db.hwall3);
+		}
+	}
+	
+		
+	wait.Restore();
 } 
 
 
@@ -182,7 +280,13 @@ void CMFCteamProjectView::OnPaint()
 	
 	DrawImage();
 	DrawcharImage(char_path);
+
+	if (flag_type == 1) {
+		drawVTKnSChar(initvtk);
+	//	DrawtypeImage();
+	}
 	
+	//flag_type = 1;
 }
 
 
@@ -199,6 +303,7 @@ void CMFCteamProjectView::OnPaint()
 
 void CMFCteamProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	CWaitCursor wait;
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	GetCursorPos(&point);
 	m_pic.ScreenToClient(&point);
@@ -252,14 +357,10 @@ void CMFCteamProjectView::OnLButtonDown(UINT nFlags, CPoint point)
 	//	DrawcharImage(img_selected_rect);
 	}
 
-	/*
-	CString str;
-	str.Format(L"%d    %d", point.x, point.y);
-	AfxMessageBox(str);
-	*/
-//	DisplayCharInfo(img_selected_rect);
-//	DrawcharImage(img_selected_rect);
+	
+	
 	CFormView::OnLButtonDown(nFlags, point);
+	wait.Restore();
 }
 
 
@@ -474,12 +575,79 @@ void CMFCteamProjectView::DrawcharImage(CString f_path) {
 	delete mfcImg;
 	mfcImg = nullptr;
 	ReleaseDC(pDC);
+//	flag_type = 1;
+}
+
+void CMFCteamProjectView::DrawtypeImage(CString f_path) {
+	if (opend == 0) return;
+	std::string s((CT2CA)f_path);
+	timg = cv::imread(s, cv::ImreadModes::IMREAD_UNCHANGED);
+
+
+	CDC* pDC;
+	CImage* mfcImg = nullptr;
+	pDC = m_type_pic.GetDC();
+
+	CRect rect;
+	m_type_pic.GetClientRect(&rect);
+	cv::resize(timg, timg, cv::Size(rect.Width() / 8 * 8, rect.Height() / 8 * 8));
+
+
+	// 이미지를 사각형으로 출력
+	BITMAPINFO bitmapInfo;
+	bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
+	bitmapInfo.bmiHeader.biBitCount = 24;
+	bitmapInfo.bmiHeader.biWidth = timg.cols;
+	bitmapInfo.bmiHeader.biHeight = -timg.rows;
+	bitmapInfo.bmiHeader.biPlanes = 1;
+	bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bitmapInfo.bmiHeader.biCompression = BI_RGB;
+	bitmapInfo.bmiHeader.biClrImportant = 0;
+	bitmapInfo.bmiHeader.biClrUsed = 0;
+	bitmapInfo.bmiHeader.biSizeImage = 0;
+	bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
+
+	if (timg.channels() == 3)
+	{
+		mfcImg = new CImage();
+		mfcImg->Create(timg.cols, timg.rows, 24);
+	}
+	else if (timg.channels() == 1)
+	{
+		cv::cvtColor(timg, timg, cv::COLOR_GRAY2RGB);
+		mfcImg = new CImage();
+		mfcImg->Create(timg.cols, timg.rows, 24);
+	}
+	else if (timg.channels() == 4)
+	{
+		bitmapInfo.bmiHeader.biBitCount = 32;
+		mfcImg = new CImage();
+		mfcImg->Create(timg.cols, timg.rows, 32);
+	}
+
+	::StretchDIBits(mfcImg->GetDC(), 0, 0, timg.cols, timg.rows,
+		0, 0, timg.cols, timg.rows, timg.data, &bitmapInfo,
+		DIB_RGB_COLORS, SRCCOPY);
+
+	mfcImg->BitBlt(::GetDC(m_type_pic.m_hWnd), 0, 0);
+
+	mfcImg->ReleaseDC();
+	delete mfcImg;
+	mfcImg = nullptr;
+	ReleaseDC(pDC);
 
 }
 
 void CMFCteamProjectView::DisplayCharInfo(int index) {
+	CWaitCursor wait;
+
 	// img_selected_rect 번째 출력
 	// db.ReadCSVFILE(_T("월인천강지곡 권상\\typeDB.csv"));
+
+	// 시작하기 전에 리스트 초기화주기
+	dir_list.RemoveAll();
+	type_lists.RemoveAll();
+
 	CString filename;
 	filename.Empty();
 
@@ -490,22 +658,35 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 
 	CString filelist;
 
-	SCharInfo chinfo = db.getChars(index + count);
+	// 현재 선택한 글자 chinfo
+	chinfo = db.getChars(index + count);
 
 	type.Format(_T("%d"), chinfo.m_type);
 	// 파일 위치 열기
-	// 첫번째 인자는 후에 책 이름 CString으로 변경할것
+	// RootPath : 월인천강지...
 	CString filepath = RootPath;
 	filepath += _T("\\03_type\\");
 	filepath += chinfo.m_char;
 
+	type_map.RemoveAll();
+
+
+	CArray <int> tmpp;
 	// 폴더 목록(활자 모양 번호) 리스트 작성
 	for (auto& entry : fs::directory_iterator(std::string(CT2CA(filepath)))) {
 		CString dir;
 		dir = entry.path().stem().string().c_str();
 		dir_list.Add(dir);
+		tmpp.Add(_ttoi(dir));
 	}
 
+	std::sort(tmpp.GetData(), tmpp.GetData() + tmpp.GetSize());
+
+	for (int i = 0; i < dir_list.GetCount(); i++) {
+		CString dir;
+		dir.Format(_T("%d"), tmpp.GetAt(i));
+		type_map.SetAt(i + 1, dir);
+	}
 
 	// 각 폴더에서 파일 가져오기
 	// filepath += _T("\\");
@@ -515,44 +696,86 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	bool _first = 0;
 	CString imgPath;
 
+
 	for (int i = 0; i < dir_list.GetSize(); i++) {
 		CString path = filepath;
 		path += _T("\\");
-		path += type;
+		// 폴더를 전부 열어 리스트에 저장
+		path += dir_list.GetAt(i);
 		for (auto& entry : fs::directory_iterator(std::string(CT2CA(path)))) {
 			int n = 0;
 			CString sheet, sx, sy;
 
-			info.f_type = _ttoi(type);
+			info.f_type = _ttoi(dir_list.GetAt(i));
 			//AfxMessageBox(info.f_type);
 			info.path = entry.path().string().c_str();
-			if (_first == 0) {
-				imgPath = info.path;
-				_first = 1;
-			}
-			info.m_char_name = entry.path().stem().string().c_str();
-			AfxExtractSubString(sheet, info.m_char_name, n++, '_');
-			AfxExtractSubString(sx, info.m_char_name, n++, '_');
-			AfxExtractSubString(sy, info.m_char_name, n++, '_');
+			// 
+	//		if (_first == 0) {
+	//			imgPath = info.path;
+	//			_first = 1;
+				//AfxMessageBox(imgPath);
+	//		}
+			CString sub;
+			sub = entry.path().stem().string().c_str();
+			AfxExtractSubString(sheet, sub, n++, '_');
+			AfxExtractSubString(sx, sub, n++, '_');
+			AfxExtractSubString(sy, sub, n++, '_');
+			//AfxExtractSubString(sy, info.m_char_name, n++, '_');
 
+			// type 폴더 안에서 맞는 sheet의 경로 저장
+			
+			info.m_char_name = chinfo.m_char;
 			info.f_sheet = _ttoi(sheet);
-			info.f_sx = _ttoi(sx);
-			info.f_sy = _ttoi(sy);
+			info.f_sx = sx;
+			info.f_sy = sy;
+			if (info.f_sheet == chinfo.m_sheet && info.f_type == chinfo.m_type) {
+				imgPath = info.path;
+			}
+			//info.f_sx = _ttoi(sx);
+			//info.f_sy = _ttoi(sy);
 			type_lists.Add(info);
 		}
 
 	}
 
 	// 해당 글자 이미지 보여주기
+
+	// 선택한 글자 정보 문자 출력
 	char_path = imgPath;
 	DrawcharImage(char_path);
 
 
 	// 활자 정보 출력
-	//char_lists.GetCount();
+	// 활자 종류의 갯수는 dir의 수
+	int numoftype = dir_list.GetCount();
+	CString text;
+	text.Format(_T("/%2d개"), numoftype);
+	mTypes.SetWindowTextW(text);
 
 
 
+	
+	// map에서 chinfo.m_types과 일치하는
+	makeTypeList(chinfo.m_type);
+	
+	// 활자 정보 spin control 수정
+	numberType = dir_list.GetCount();
+	m_spType.SetRange(minnumberType, numberType);
+	int typess = 1;
+	CString ttt;
+	CString tmp;
+	tmp.Format(_T("%d"), chinfo.m_type);
+	for (int i = 0; i < type_map.GetCount(); i++) {
+		type_map.Lookup(i + 1, ttt);
+		if (ttt == tmp) typess = i + 1;
+		//makeTypeList();
+	}
+	m_spType.SetPos(typess);
+	CString ch;
+	ch.Format(_T("%d"), typess);
+	m_edType.SetWindowTextW(ch);
+	//m_edType.SetWindowTextW()
+//	m_edType.SetWindowTextW(_T("1"));
 	//CString types;
 //	mTypes.SetWindowTextW();
 
@@ -575,7 +798,87 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 	CharOrder.SetWindowTextW(order);
 
 
+	wait.Restore();
+}
 
+// 현재 선택한 활자 currentType에 따라 리스트를 구성하는 함수
+// 
+void CMFCteamProjectView::makeTypeList(int sel) {
+	
+
+
+	// 현재 모든 아이템 지우기
+	mListChars.DeleteAllItems();
+	// 현재 타입은?
+	CString currenttype;
+//	if (type_map.Lookup(sel, currenttype) == 0) {
+//		AfxMessageBox(_T("해당하는 활자가 없습니다"));
+//	}
+
+	// int로의 변환, 현재 선택한 활자 type이 무엇인지 selectedType에 저장됨.
+	//int selectedType = _ttoi(currenttype);
+	int selectedType = sel;
+
+
+	// 활자 정보를 가져왔으니, type_lists에서 sheet가 맞는 것들을 가져오자
+	item_lists.RemoveAll();
+
+	int listcount = 0;
+	int initsel = -1;
+	TypeInfo tmp;
+	int n = type_lists.GetSize();
+	for (int i = 0; i < type_lists.GetSize(); i++) {
+		tmp = type_lists.GetAt(i);
+		// type이 일치하면 아이템 어레이에 넣자
+		if (tmp.f_type == selectedType) {
+			// sheet도 일치하면 그건 초기 항목이다.
+			if (tmp.f_sheet == chinfo.m_sheet) initsel = listcount;
+			listcount++;
+			item_lists.Add(tmp);
+			// 구성 글자 리스트에 아이템들을 넣자
+			// 들어가는 데이터는 CString이다.
+			int num = mListChars.GetItemCount();
+			// 장
+			CString sh;
+			sh.Format(_T("%d"), tmp.f_sheet);
+			mListChars.InsertItem(num, sh);
+			// sx, sy
+			mListChars.SetItem(num, 1, LVIF_TEXT, tmp.f_sx, NULL, NULL, NULL, NULL);
+			mListChars.SetItem(num, 2, LVIF_TEXT, tmp.f_sy, NULL, NULL, NULL, NULL);
+		}
+	}
+	initvtk = 0;
+	int debugcheck = item_lists.GetCount();
+	if (initsel != -1) {
+		mListChars.SetItemState(initsel, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+		initvtk = initsel;
+	}
+	else mListChars.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+	initvtk = 0;
+	
+
+	drawVTKnSChar(initvtk);
+	
+	//mListChars.SetSelectionMark(initsel);
+
+
+}
+void CMFCteamProjectView::drawVTKnSChar(int number) {
+
+	typecharpath = item_lists.GetAt(number).path;
+	std::string ps = ((CT2CA)typecharpath);
+	DrawtypeImage(typecharpath);
+	
+
+	CString vpath;
+	typecharpath.Format(_T("%d"), item_lists.GetAt(number).f_type);
+	vpath = _T("04_3d\\");
+	vpath += item_lists.GetAt(number).m_char_name;
+	vpath += _T("_");
+	vpath += typecharpath;
+	vpath += _T(".stl");
+	displayVTK(vpath);
+	flag_type = 1;
 }
 
 //void CMFCteamProjectView::OnStnClickedPic()
@@ -585,6 +888,155 @@ void CMFCteamProjectView::DisplayCharInfo(int index) {
 
 
 void CMFCteamProjectView::OnStnClickedCharsheet()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+// vtk 코드
+void CMFCteamProjectView::InitVtkWindow(void* hWnd)
+{
+	if (m_vtkWindow == NULL)
+	{
+		vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+			vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	
+		interactor->SetInteractorStyle(
+			vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New());
+		
+		vtkSmartPointer<vtkRenderer> renderer =
+			vtkSmartPointer<vtkRenderer>::New();
+		renderer->SetBackground(255, 255, 255); // 배경을 흰색으로 만든다.
+
+		m_vtkWindow = vtkSmartPointer<vtkRenderWindow>::New();
+		m_vtkWindow->SetParentId(hWnd);
+		m_vtkWindow->SetInteractor(interactor);
+		m_vtkWindow->AddRenderer(renderer);
+		m_vtkWindow->Render();
+	}
+}
+void CMFCteamProjectView::ResizeVtkWindow()
+{
+	CRect rc;
+	CWnd* pWnd = GetDlgItem(IDC_STATIC_FRAME);
+	if (pWnd)
+	{
+		pWnd->GetClientRect(rc);
+		m_vtkWindow->SetSize(rc.Width(), rc.Height());
+	}
+}
+
+void CMFCteamProjectView::displayVTK(CString ppath)
+{
+	_tsetlocale(LC_ALL, _T(""));
+
+	CString str;
+
+	
+	std::string  s((CT2CA)ppath);
+
+	vtkSmartPointer<vtkSTLReader> pSTLReader =
+		vtkSmartPointer<vtkSTLReader>::New();
+	pSTLReader->SetFileName((CT2CA)ppath);
+	//pSTLReader->SetFileName((const char *) charstr); // 여기서 읽어오는 것임 PATH를 잘 설정해주면 된다.
+	//pSTLReader->SetFileName("m_char + "_" + m_type");
+	pSTLReader->Update();
+
+	vtkSmartPointer<vtkPolyData> pPolyData =
+		pSTLReader->GetOutput();
+
+	vtkSmartPointer<vtkPolyDataMapper> mapper =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(pPolyData);
+	vtkSmartPointer<vtkActor> actor =
+		vtkSmartPointer<vtkActor>::New();
+	actor->SetMapper(mapper);
+
+	vtkSmartPointer<vtkRenderer> renderer =
+		vtkSmartPointer<vtkRenderer>::New();
+	renderer->AddActor(actor);
+	renderer->SetBackground(.1, .2, .3);
+	renderer->ResetCamera();
+
+	
+	m_vtkWindow->AddRenderer(renderer);
+	m_vtkWindow->Render();
+
+}
+
+void CMFCteamProjectView::OnDeltaposSpinType(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int iVal = pNMUpDown->iPos + pNMUpDown->iDelta;
+	
+	if ((minnumberType <= iVal) && iVal <= numberType) {
+		currentType = iVal;
+		CString s;
+		s.Format(_T("%d"), iVal);
+		m_edType.SetWindowTextW(s);
+		CString types;
+		if (type_map.Lookup(iVal, types) == 1) {
+			makeTypeList(_ttoi(types));
+		}
+		
+	}
+
+	*pResult = 0;
+}
+
+// 리스트 항목 선택시
+void CMFCteamProjectView::OnNMClickListChars(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	// 선택한 행 값 가져오기
+	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
+
+	int idx = pNMListView->iItem;
+	
+	// 선택한 항목이 표시된 항목수보다 크면 무효화
+	if (idx < 0) return;
+
+	// 현재 선택중인 항목의 sheet를 가져와, 현재 설정된 type과 합쳐 vtk 경로를 생성하자
+	// 현재 m_char는 chinfo.m_char이다. 
+	// 아니면 list에서 같은 sheet을 가진 놈을 가져와
+
+	// idx 번째 아이템의 모형, 이미지를 출력합니다.
+	CString s;
+	s = item_lists.GetAt(idx).path;
+	std::string ps = ((CT2CA)s);
+	TypeCharP = item_lists.GetAt(idx).path;
+	DrawtypeImage(item_lists.GetAt(idx).path);
+	
+	CString vpath;
+	s.Format(_T("%d"), item_lists.GetAt(idx).f_type);
+	vpath = _T("04_3d\\");
+	vpath += item_lists.GetAt(idx).m_char_name;
+	vpath += _T("_");
+	vpath += s;
+	vpath += _T(".stl");
+	displayVTK(vpath);
+	*pResult = 0;
+}
+
+
+void CMFCteamProjectView::OnNMCustomdrawListChars(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+
+	*pResult = 0;
+}
+
+
+void CMFCteamProjectView::OnStnClickedStaticTypes()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CMFCteamProjectView::OnStnClickedallnum()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }

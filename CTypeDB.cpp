@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "CTypeDB.h"
 #include <stdlib.h>
+#include <string>
+
+#include <vtkSTLReader.h>
+#include <vtkLight.h>
 
 BOOL CTypeDB::ReadCSVFILE(CString filename) {
     CStdioFile file;
@@ -126,3 +130,163 @@ int CTypeDB::getSheet(int index) {
     return sheet;
 }
 */
+
+void CTypeDB::numcount()
+{
+    int sheet1 = 0, sheet2 = 0, sheet3 = 0, skcount1 = 0, skcount2 = 0, skcount3 = 0, stcount1 = 0, stcount2 = 0, stcount3 = 0; // 1, 2, 3장 글자수 / 1, 2, 3장 종류 중복 수 / 1, 2, 3장 활자 중복 수
+    int toverlapcount = 0, koverlapcount = 0; //전체 활자수, 전체 종류 중복 수
+
+    //전체 글자 종류 + 장 내 글자수
+    for (int i = 0; i < m_Chars.GetSize(); i++)
+    {
+        SCharInfo info;
+        info = m_Chars.GetAt(i);
+
+        if (info.m_sheet == 1)
+            sheet1++; //1장 글자 수
+        else if (info.m_sheet == 2)
+            sheet2++; //2장 글자 수
+        else if (info.m_sheet == 3)
+            sheet3++; //3장 글자 수
+
+        for (int j = i - 1; j >= 0; j--)
+        {
+            if (i == 0) break;
+
+            SCharInfo info1;
+            info1 = m_Chars.GetAt(j);
+            if (info.m_char == info1.m_char)
+            {
+                koverlapcount++;
+                break;
+            }
+        }
+    }
+
+    //활자 수 세기
+    for (int i = 1; i < m_Chars.GetSize(); i++)
+    {
+        SCharInfo info;
+        info = m_Chars.GetAt(i);
+
+        for (int j = i - 1; j >= 0; j--)
+        {
+            SCharInfo info1;
+            info1 = m_Chars.GetAt(j);
+            if (info.m_char == info1.m_char && info.m_type == info1.m_type)
+            {
+                toverlapcount++;
+                if (info1.m_sheet == 1)
+                {
+                    stcount1++;
+                }
+                else if (info1.m_sheet == 2)
+                {
+                    stcount2++;
+                }
+                else if (info1.m_sheet == 3)
+                {
+                    stcount3++;
+                }
+            }
+        }
+    }
+
+    //장내 글자 종류
+    for (int i = 1; i < m_Chars.GetSize(); i++)
+    {
+        SCharInfo info;
+        info = m_Chars.GetAt(i);
+
+        for (int j = i - 1; j >= 0; j--)
+        {
+            SCharInfo info1;
+            info1 = m_Chars.GetAt(j);
+
+            if (info.m_char == info1.m_char && info.m_sheet == info1.m_sheet)
+            {
+                if (info1.m_sheet == 1)
+                    skcount1++;
+                else if (info1.m_sheet == 2)
+                    skcount2++;
+                else if (info1.m_sheet == 3)
+                    skcount3++;
+                break;
+
+            }
+        }
+    }
+
+    num.Format(_T("%d"), m_Chars.GetSize());
+    type.Format(_T("%d"), m_Chars.GetSize() - koverlapcount);
+    hwall.Format(_T("%d"), m_Chars.GetSize() - toverlapcount);
+
+    num1.Format(_T("%d"), sheet1);
+    type1.Format(_T("%d"), sheet1 - skcount1);
+    hwall1.Format(_T("%d"), sheet1 - stcount1);
+
+    num2.Format(_T("%d"), sheet2);
+    type2.Format(_T("%d"), sheet2 - skcount2);
+    hwall2.Format(_T("%d"), sheet2 - stcount2);
+
+    num3.Format(_T("%d"), sheet3);
+    type3.Format(_T("%d"), sheet3 - skcount3);
+    hwall3.Format(_T("%d"), sheet3 - stcount3);
+}
+
+void CTypeDB::pagechangenum(int img_index)
+{
+    if (img_index == 1)
+    {
+        CString num1, type1, hwall1;
+        num1.Format(_T("%d"), sheet1);
+        type1.Format(_T("%d"), sheet1 - skcount1);
+        hwall1.Format(_T("%d"), sheet1 - stcount1);
+    }
+    else if (img_index == 2)
+    {
+        CString num2, type2, hall2, str, str1;
+        num2.Format(_T("%d"), sheet2);
+        type2.Format(_T("%d"), sheet2 - skcount2);
+        hall2.Format(_T("%d"), sheet2 - stcount2);
+    }
+    else if (img_index == 3)
+    {
+        CString num3, type3, hall3;
+        num3.Format(_T("%d"), sheet3);
+        type3.Format(_T("%d"), sheet3 - skcount3);
+        hall3.Format(_T("%d"), sheet3 - stcount3);
+    }
+}
+
+/*void CTypeDB::displayVTK(CString path)
+{
+        // TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+     
+        vtkSmartPointer<vtkSTLReader> pSTLReader =
+            vtkSmartPointer<vtkSTLReader>::New();
+        pSTLReader->SetFileName(path); // 여기서 읽어오는 것임 PATH를 잘 설정해주면 된다.
+        //pSTLReader->SetFileName("m_char + "_" + m_type");
+        pSTLReader->Update();
+
+        vtkSmartPointer<vtkPolyData> pPolyData =
+            pSTLReader->GetOutput();
+
+        vtkSmartPointer<vtkPolyDataMapper> mapper =
+            vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->SetInputData(pPolyData);
+        vtkSmartPointer<vtkActor> actor =
+            vtkSmartPointer<vtkActor>::New();
+        actor->SetMapper(mapper);
+
+        vtkSmartPointer<vtkRenderer> renderer =
+            vtkSmartPointer<vtkRenderer>::New();
+        renderer->AddActor(actor);
+        renderer->SetBackground(.1, .2, .3);
+        renderer->ResetCamera();
+
+
+        m_vtkWindow->AddRenderer(renderer);
+        m_vtkWindow->Render();
+    
+}*/
