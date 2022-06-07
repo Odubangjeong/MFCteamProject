@@ -200,6 +200,7 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 		Invalidate();
 		LoadNewImage(1);
 	}
+	else AfxMessageBox(_T("잘못된 폴더 경로입니다"));
 		// 호출
 
 	
@@ -211,6 +212,7 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 	m_pnum.SetWindowText(db.num1);
 	m_ptype.SetWindowText(db.type1);
 	m_phwall.SetWindowText(db.hwall1);
+//	m_phwall.SetWindowText(db.num1);
 	
 
 
@@ -222,6 +224,7 @@ void CMFCteamProjectView::OnBnClickedButtonOpen()
 
 void CMFCteamProjectView::OnDeltaposSpinSheet(NMHDR* pNMHDR, LRESULT* pResult)
 {
+	if (opend == 0) return;
 	CWaitCursor wait;
 	// if (opend == 0) return;
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
@@ -237,18 +240,21 @@ void CMFCteamProjectView::OnDeltaposSpinSheet(NMHDR* pNMHDR, LRESULT* pResult)
 		{
 			m_pnum.SetWindowText(db.num1);
 			m_ptype.SetWindowText(db.type1);
+		//	m_phwall.SetWindowText(db.num1);
 			m_phwall.SetWindowText(db.hwall1);
 		}
 		else if (iVal == 2)
 		{
 			m_pnum.SetWindowText(db.num2);
 			m_ptype.SetWindowText(db.type2);
+		//	m_phwall.SetWindowText(db.num2);
 			m_phwall.SetWindowText(db.hwall2);
 		}
 		else if (iVal == 3)
 		{
 			m_pnum.SetWindowText(db.num3);
 			m_ptype.SetWindowText(db.type3);
+		//	m_phwall.SetWindowText(db.num3);
 			m_phwall.SetWindowText(db.hwall3);
 		}
 	}
@@ -919,6 +925,7 @@ void CMFCteamProjectView::displayVTK(CString ppath)
 
 void CMFCteamProjectView::OnDeltaposSpinType(NMHDR* pNMHDR, LRESULT* pResult)
 {
+	if (opend == 0) return;
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	int iVal = pNMUpDown->iPos + pNMUpDown->iDelta;
